@@ -6,8 +6,18 @@ class Profile(models.Model):
     gender = models.CharField(max_length=10, choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')])
     weight = models.FloatField()
     height = models.FloatField()
-    activity_level = models.CharField(max_length=20)#TODO Dropdown menu
-    body_fat = models.FloatField() #TODO: add option to calculate body fat
+    activity_level = models.CharField(
+        max_length=20,
+        choices=[
+            ('Sedentary', 'Sedentary'),
+            ('Lightly Active', 'Lightly Active'),
+            ('Moderately Active', 'Moderately Active'),
+            ('Very Active', 'Very Active'),
+            ('Extra Active', 'Extra Active'),
+        ]
+    )
+    body_fat = models.FloatField()
+    tdee = models.FloatField(blank=True, null=True) # Calculated field
     age = models.IntegerField()
     tdee = models.FloatField(blank=True, null=True) # Calculated field
 
