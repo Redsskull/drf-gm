@@ -19,9 +19,10 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
-
+#TODO: password validation
 class ProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    age = serializers.IntegerField()
     activity_level = serializers.ChoiceField(choices=Profile._meta.get_field('activity_level').choices)
     weight = serializers.FloatField(
         error_messages={
@@ -39,7 +40,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('user', 'gender','weight_unit', 'height_unit', 'weight', 'height', 'activity_level', 'body_fat', 'do_not_know_body_fat', 'waist_measurement', 'hip_measurement', 'TDEE', 'created_at', 'updated_at')
+        fields = ('user', 'gender','weight_unit', 'height_unit', 'weight', 'height', 'activity_level', 'body_fat', 'do_not_know_body_fat', 'waist_measurement', 'hip_measurement', 'TDEE', 'created_at', 'updated_at', 'age')
         read_only_fields = ('do_not_know_body_fat',)
         depth = 1
 
