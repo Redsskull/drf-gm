@@ -26,7 +26,7 @@ class Profile(models.Model):
             ('Extra Active', 'Extra Active'),
         ]
     )
-    body_fat = models.FloatField(null=True, blank=True) #TODO this needs to be a percentege entry for the user
+    body_fat = models.FloatField(null=True, blank=True) 
     age = models.IntegerField()
     TDEE = models.FloatField(blank=True, null=True) # Calculated field
     created_at = models.DateTimeField(auto_now_add=True)

@@ -74,6 +74,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         # Deurenberg formula for body fat estimation
         body_fat = (waist_measurement - hip_measurement) / waist_measurement * 100
         return body_fat
+    
+    def validate_body_fat(self, value):
+        if value is not None and (value < 0 or value > 100):
+            raise serializers.ValidationError("Body fat percentage must be between 0 and 100.")
+        return value
 
     def create(self, validated_data):
         # Extract 'do_not_know_body_fat', 'waist_measurement', and 'hip_measurement' from the data
