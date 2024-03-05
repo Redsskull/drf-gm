@@ -22,37 +22,39 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    activity_level = serializers.CharField()
+    activity_level = serializers.ChoiceField(choices=Profile._meta.get_field('activity_level').choices)
     body_fat = serializers.FloatField(required=False)
-    waist_circumference = serializers.FloatField(required=False)
-    hip_circumference = serializers.FloatField(required=False)
+    do_not_know_body_fat = serializers.BooleanField(required=False)
+    waist_measurement = serializers.FloatField(required=False)
+    hip_measurement = serializers.FloatField(required=False)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+    TDEE = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Profile
-        fields = ('user', 'gender', 'weight', 'height', 'activity_level', 'body_fat', 'waist_circumference', 'hip_circumference', 'tdee')
+        fields = ('user', 'gender', 'weight', 'height', 'activity_level', 'body_fat', 'do_not_know_body_fat', 'waist_measurement', 'hip_measurement', 'TDEE', 'created_at', 'updated_at')
+        read_only_fields = ('do_not_know_body_fat',)
         depth = 1
 
     def validate(self, data):
-        # Check if both body fat and measurements are provided
-        if 'body_fat' in data and ('waist_circumference' in data or 'hip_circumference' in data):
-            raise serializers.ValidationError("Please provide either body fat percentage or waist and hip circumferences, not both.")
-
-        # If body fat is not provided, calculate it using measurements
-        if 'body_fat' not in data:
-            waist_circumference = data.get('waist_circumference')
-            hip_circumference = data.get('hip_circumference')
-            if waist_circumference and hip_circumference:
+        do_not_know_body_fat = data.get('do_not_know_body_fat', False)
+        if do_not_know_body_fat:
+            waist_measurement = data.get('waist_measurement')
+            hip_measurement = data.get('hip_measurement')
+            if waist_measurement and hip_measurement:
                 # Implement the Deurenberg formula for body fat estimation
-                body_fat = self.calculate_body_fat(waist_circumference, hip_circumference)
+                body_fat = self.calculate_body_fat(waist_measurement, hip_measurement)
                 data['body_fat'] = body_fat
             else:
-                raise serializers.ValidationError("Either body fat percentage or waist and hip circumferences must be provided.")
-
+                raise serializers.ValidationError("If you do not know your body fat percentage, waist and hip measurements must be provided.")
+        elif 'body_fat' not in data:
+            raise serializers.ValidationError("Either body fat percentage or 'do not know body fat' must be provided.")
         return data
 
-    def calculate_body_fat(self, waist_circumference, hip_circumference):
+    def calculate_body_fat(self, waist_measurement, hip_measurement):
         # Deurenberg formula for body fat estimation
-        body_fat = (waist_circumference - hip_circumference) / waist_circumference * 100
+        body_fat = (waist_measurement - hip_measurement) / waist_measurement * 100
         return body_fat
 
     def create(self, validated_data):

@@ -12,3 +12,5 @@ class ProfileViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+#TODO: be able to see a list of profiles

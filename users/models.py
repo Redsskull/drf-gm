@@ -16,14 +16,15 @@ class Profile(models.Model):
             ('Extra Active', 'Extra Active'),
         ]
     )
-    body_fat = models.FloatField()
-    tdee = models.FloatField(blank=True, null=True) # Calculated field
+    body_fat = models.FloatField(null=True, blank=True)
     age = models.IntegerField()
-    tdee = models.FloatField(blank=True, null=True) # Calculated field
+    TDEE = models.FloatField(blank=True, null=True) # Calculated field
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         # Calculate TDEE here based on the user's input
-        self.tdee = self.calculate_tdee()
+        self.TDEE = self.calculate_tdee()
         super().save(*args, **kwargs)
 
     def calculate_tdee(self):
@@ -43,5 +44,7 @@ class Profile(models.Model):
             bmr = (10 * self.weight + 6.25 * self.height - 5 * self.user.profile.age - 161) * 1.55
 
         # Calculate TDEE
-        tdee = bmr * activity_levels[self.activity_level]
-        return tdee
+        TDEE = bmr * activity_levels[self.activity_level]
+        return TDEE
+
+#TODO give user a choice of units to use.
