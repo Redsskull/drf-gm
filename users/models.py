@@ -12,8 +12,8 @@ class Profile(models.Model):
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gender = models.CharField(max_length=10, choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')])
-    weight_unit = models.CharField(max_length=2, choices=WEIGHT_UNITS, default='kg')
-    height_unit = models.CharField(max_length=2, choices=HEIGHT_UNITS, default='m')
+    weight_unit = models.CharField(max_length=3, choices=WEIGHT_UNITS, default='kg')
+    height_unit = models.CharField(max_length=3, choices=HEIGHT_UNITS, default='m')
     weight = models.FloatField()
     height = models.FloatField()
     activity_level = models.CharField(
@@ -40,7 +40,7 @@ class Profile(models.Model):
         # Convert height to meters if not already
         if self.height_unit == 'ft':
             self.height = self.height * 0.3048 # Convert feet to meters
-            
+
         # Calculate TDEE here based on the user's input
         self.TDEE = self.calculate_tdee()
         super().save(*args, **kwargs)
@@ -65,4 +65,3 @@ class Profile(models.Model):
         TDEE = bmr * activity_levels[self.activity_level]
         return TDEE
 
-#TODO give user a choice of units to use and input for weight and height
