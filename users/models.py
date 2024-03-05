@@ -2,8 +2,18 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Profile(models.Model):
+    WEIGHT_UNITS = [
+        ('kg', 'Kilograms'),
+        ('lbs', 'Pounds'),
+    ]
+    HEIGHT_UNITS = [
+        ('cm', 'Centimeters'),
+        ('in', 'Inches'),
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gender = models.CharField(max_length=10, choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')])
+    weight_unit = models.CharField(max_length=2, choices=WEIGHT_UNITS, default='kg')
+    height_unit = models.CharField(max_length=2, choices=HEIGHT_UNITS, default='m')
     weight = models.FloatField()
     height = models.FloatField()
     activity_level = models.CharField(
@@ -16,13 +26,21 @@ class Profile(models.Model):
             ('Extra Active', 'Extra Active'),
         ]
     )
-    body_fat = models.FloatField(null=True, blank=True)
+    body_fat = models.FloatField(null=True, blank=True) #TODO this needs to be a percentege entry for the user
     age = models.IntegerField()
     TDEE = models.FloatField(blank=True, null=True) # Calculated field
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        # Convert weight to kilograms if not already
+        if self.weight_unit == 'lb':
+            self.weight = self.weight * 0.453592 # Convert pounds to kilograms
+
+        # Convert height to meters if not already
+        if self.height_unit == 'ft':
+            self.height = self.height * 0.3048 # Convert feet to meters
+            
         # Calculate TDEE here based on the user's input
         self.TDEE = self.calculate_tdee()
         super().save(*args, **kwargs)
@@ -47,4 +65,4 @@ class Profile(models.Model):
         TDEE = bmr * activity_levels[self.activity_level]
         return TDEE
 
-#TODO give user a choice of units to use.
+#TODO give user a choice of units to use and input for weight and height
