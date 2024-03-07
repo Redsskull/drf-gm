@@ -46,9 +46,10 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         do_not_know_body_fat = data.get('do_not_know_body_fat', False)
+        waist_measurement = data.get('waist_measurement')
+        hip_measurement = data.get('hip_measurement')
+
         if do_not_know_body_fat:
-            waist_measurement = data.get('waist_measurement')
-            hip_measurement = data.get('hip_measurement')
             if waist_measurement and hip_measurement:
                 # Implement the Deurenberg formula for body fat estimation
                 body_fat = self.calculate_body_fat(waist_measurement, hip_measurement)
@@ -71,25 +72,22 @@ class ProfileSerializer(serializers.ModelSerializer):
 
         return data
 
+
     def calculate_body_fat(self, waist_measurement, hip_measurement):
         # Deurenberg formula for body fat estimation
         body_fat = (waist_measurement - hip_measurement) / waist_measurement * 100
         return body_fat
     
-    def validate_body_fat(self, value):
-        if value is not None and (value < 0 or value > 100):
-            raise serializers.ValidationError("Body fat percentage must be between 0 and 100.")
-        return value
 
     def create(self, validated_data):
         # Extract 'do_not_know_body_fat', 'waist_measurement', and 'hip_measurement' from the data
         do_not_know_body_fat = validated_data.pop('do_not_know_body_fat', False)
         waist_measurement = validated_data.pop('waist_measurement', None)
         hip_measurement = validated_data.pop('hip_measurement', None)
-        
+            
         # Extract 'user' data for creating the User instance
         user_data = validated_data.pop('user')
-        user = UserSerializer().create(user_data)
+        user = UserSerializer.create(UserSerializer(), validated_data=user_data)
         
         # Create the Profile instance without 'do_not_know_body_fat', 'waist_measurement', 'hip_measurement', and 'user'
         profile = Profile.objects.create(user=user, **validated_data)

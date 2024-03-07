@@ -57,11 +57,16 @@ class Profile(models.Model):
 
         # Calculate BMR
         if self.gender == 'M':
-            bmr = (10 * self.weight + 6.25 * self.height - 5 * self.user.profile.age + 5) * 1.55
+            bmr = 10 * self.weight + 6.25 * self.height - 5 * self.age + 5
         else:
-            bmr = (10 * self.weight + 6.25 * self.height - 5 * self.user.profile.age - 161) * 1.55
+            bmr = 10 * self.weight + 6.25 * self.height - 5 * self.age - 161
 
         # Calculate TDEE
-        TDEE = bmr * activity_levels[self.activity_level]
+        activity_level_multiplier = activity_levels[self.activity_level]
+        TDEE = bmr * activity_level_multiplier
         return TDEE
+     
+        
 
+    def __str__(self):  
+        return self.user.username
