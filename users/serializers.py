@@ -25,6 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     """
     this and the user serializer above will work together to make sure the profile is validated, has no duplicates, body fat if not know is calucalted along with of course a TDEE.
+    With the methods in the model and the validate and create methods, what I'm attempting to do is create a user profile with a tdee, use the measurments the user prefers(and convert them for easier math) and change the input display based on selection
     """
     user = UserSerializer()
     age = serializers.IntegerField()
@@ -48,24 +49,17 @@ class ProfileSerializer(serializers.ModelSerializer):
     do_not_know_body_fat = serializers.BooleanField(required=False)
     waist_measurement = serializers.FloatField(required=False)
     hip_measurement = serializers.FloatField(required=False)
-    created_at = serializers.DateTimeField(read_only=True)
-    updated_at = serializers.DateTimeField(read_only=True)
-    TDEE = serializers.FloatField(read_only=True)
     weight_unit = serializers.ChoiceField(choices=Profile._meta.get_field('weight_unit').choices)
     height_unit = serializers.ChoiceField(choices=Profile._meta.get_field('height_unit').choices)
 
     class Meta:
         model = Profile
         fields = ('user', 'gender','weight_unit', 'height_unit', 'weight', 'height', 'activity_level', 'body_fat', 'do_not_know_body_fat', 'waist_measurement', 'hip_measurement', 'TDEE', 'created_at', 'updated_at', 'age', 'height_feet', 'height_inches')
-        read_only_fields = ('do_not_know_body_fat',)
+        read_only_fields = ('do_not_know_body_fat','created_at', 'updated_at', 'TDEE')
         depth = 1
 
 
     def validate(self, data):
-        print(f"height: {data.get('height')}")
-        print(f"height_feet: {data.get('height_feet')}")
-        print(f"height_inches: {data.get('height_inches')}")
-        print(f"height_unit: {data.get('height_unit')}")
         do_not_know_body_fat = data.get('do_not_know_body_fat', False)
         waist_measurement = data.get('waist_measurement')
         hip_measurement = data.get('hip_measurement')
